@@ -1,0 +1,62 @@
+package og.yah.tools.cuda.cublas;
+
+import og.yah.tools.cuda.jna.NativeEnum;
+
+@SuppressWarnings("unused")
+public enum cublasGemmAlgo_t implements NativeEnum {
+    CUBLAS_GEMM_DFALT(-1),
+    CUBLAS_GEMM_DEFAULT(-1),
+    CUBLAS_GEMM_ALGO0(0),
+    CUBLAS_GEMM_ALGO1(1),
+    CUBLAS_GEMM_ALGO2(2),
+    CUBLAS_GEMM_ALGO3(3),
+    CUBLAS_GEMM_ALGO4(4),
+    CUBLAS_GEMM_ALGO5(5),
+    CUBLAS_GEMM_ALGO6(6),
+    CUBLAS_GEMM_ALGO7(7),
+    CUBLAS_GEMM_ALGO8(8),
+    CUBLAS_GEMM_ALGO9(9),
+    CUBLAS_GEMM_ALGO10(10),
+    CUBLAS_GEMM_ALGO11(11),
+    CUBLAS_GEMM_ALGO12(12),
+    CUBLAS_GEMM_ALGO13(13),
+    CUBLAS_GEMM_ALGO14(14),
+    CUBLAS_GEMM_ALGO15(15),
+    CUBLAS_GEMM_ALGO16(16),
+    CUBLAS_GEMM_ALGO17(17),
+    CUBLAS_GEMM_ALGO18(18),  // sliced 32x32
+    CUBLAS_GEMM_ALGO19(19),  // sliced 64x32
+    CUBLAS_GEMM_ALGO20(20),  // sliced 128x32
+    CUBLAS_GEMM_ALGO21(21),  // sliced 32x32  -splitK
+    CUBLAS_GEMM_ALGO22(22),  // sliced 64x32  -splitK
+    CUBLAS_GEMM_ALGO23(23),  // sliced 128x32 -splitK
+    CUBLAS_GEMM_DEFAULT_TENSOR_OP(99),
+    CUBLAS_GEMM_DFALT_TENSOR_OP(99),
+    CUBLAS_GEMM_ALGO0_TENSOR_OP(100),
+    CUBLAS_GEMM_ALGO1_TENSOR_OP(101),
+    CUBLAS_GEMM_ALGO2_TENSOR_OP(102),
+    CUBLAS_GEMM_ALGO3_TENSOR_OP(103),
+    CUBLAS_GEMM_ALGO4_TENSOR_OP(104),
+    CUBLAS_GEMM_ALGO5_TENSOR_OP(105),
+    CUBLAS_GEMM_ALGO6_TENSOR_OP(106),
+    CUBLAS_GEMM_ALGO7_TENSOR_OP(107),
+    CUBLAS_GEMM_ALGO8_TENSOR_OP(108),
+    CUBLAS_GEMM_ALGO9_TENSOR_OP(109),
+    CUBLAS_GEMM_ALGO10_TENSOR_OP(110),
+    CUBLAS_GEMM_ALGO11_TENSOR_OP(111),
+    CUBLAS_GEMM_ALGO12_TENSOR_OP(112),
+    CUBLAS_GEMM_ALGO13_TENSOR_OP(113),
+    CUBLAS_GEMM_ALGO14_TENSOR_OP(114),
+    CUBLAS_GEMM_ALGO15_TENSOR_OP(115);
+
+    private final int nativeValue;
+
+    cublasGemmAlgo_t(int nativeValue) {
+        this.nativeValue = nativeValue;
+    }
+
+    @Override
+    public int nativeValue() {
+        return nativeValue;
+    }
+}
