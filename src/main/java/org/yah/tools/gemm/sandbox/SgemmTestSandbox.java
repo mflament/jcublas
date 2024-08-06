@@ -69,6 +69,7 @@ public class SgemmTestSandbox extends AbstractSgemmSandbox {
 
         testGemm(alpha, beta, cudaGemm);
         testGemm(alpha, beta, cudaTiledGemm);
+        testGemm(alpha, beta, cudaTransposedGemm);
     }
 
     private void testGemm(float alpha, float beta, Gemm.Sgemm gemm) {

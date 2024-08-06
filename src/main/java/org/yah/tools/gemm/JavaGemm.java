@@ -177,12 +177,12 @@ public abstract class JavaGemm implements Gemm {
         }
     }
 
-    private static void transpose(MatrixExecutor matrixExecutor, int rows, int cols,
+    public static void transpose(MatrixExecutor matrixExecutor, int rows, int cols,
                                   float[] dst, float[] src, int ld) {
         matrixExecutor.parallelize(rows, cols, (row, col) -> dst[IDX2C(col, row, cols)] = src[IDX2C(row, col, ld)]);
     }
 
-    private static void transpose(MatrixExecutor matrixExecutor, int rows, int cols,
+    public static void transpose(MatrixExecutor matrixExecutor, int rows, int cols,
                                   double[] dst, double[] src, int ld) {
         matrixExecutor.parallelize(rows, cols, (row, col) -> dst[IDX2C(col, row, cols)] = src[IDX2C(row, col, ld)]);
     }

@@ -1,4 +1,5 @@
 #define IDX2C(row,col,ld) ((col) * (ld) + (row))
+#define IDX2R(row,col,ld) ((row) * (ld) + (col))
 
 #if not defined BLOCK_SIZE
 #define BLOCK_SIZE 32
@@ -26,9 +27,9 @@ __device__ void gemm(int M, int N, int K,
 
     // Loop over all the sub-matrices of A and B
     // required to compute the block sub-matrix
-    for (int m = blockIdx.y * BLOCK_SIZE; m < M; m += gridDim.y * BLOCK_SIZE)
+    for (int n = blockIdx.x * BLOCK_SIZE; n < N; n += gridDim.x * BLOCK_SIZE)
     {
-        for (int n = blockIdx.x * BLOCK_SIZE; n < N; n += gridDim.x * BLOCK_SIZE)
+        for (int m = blockIdx.y * BLOCK_SIZE; m < M; m += gridDim.y * BLOCK_SIZE)
         {
             T Csub = 0;
             for (int k = 0; k < K; k += BLOCK_SIZE)
@@ -38,7 +39,7 @@ __device__ void gemm(int M, int N, int K,
                 // one element of each matrix
                 x = k + tx;
                 y = m + ty;
-                As[ty][tx] = x < K && y < M ? A[IDX2C(y,x,lda)] : 0;
+                As[ty][tx] = x < K && y < M ? A[IDX2R(y,x,lda)] : 0;
 
                 x = n + tx;
                 y = k + ty;

@@ -74,7 +74,7 @@ public abstract class AbstractGemmSandbox {
     }
 
     private void validateDim(String matrix, int dim) {
-        if (dim > +MAX_ARRAY_LENGTH) // max array dim
+        if (dim > MAX_ARRAY_LENGTH) // max array dim
             throw new IllegalStateException(matrix + " array length " + dim + " overflow max length " + MAX_ARRAY_LENGTH);
     }
 
@@ -94,13 +94,6 @@ public abstract class AbstractGemmSandbox {
         return (row, col) -> matrix[JavaGemm.IDX2C(row, col, ld)] = random.nextDouble();
     }
 
-    protected final String formatSizes(int M, int N, int K) {
-        return String.format("A=%.2fMB B=%.2fMB C=%.2fMB",
-                M * K * elementSize() / MB,
-                K * N * elementSize() / MB,
-                M * N * elementSize() / MB);
-    }
-
     protected abstract long elementSize();
 
     public static abstract class AbstractSgemmSandbox extends AbstractGemmSandbox {
@@ -110,6 +103,7 @@ public abstract class AbstractGemmSandbox {
         protected static CublasSgemm cublasGemm;
         protected static CudaSgemm cudaGemm;
         protected static CudaSgemm cudaTiledGemm;
+        protected static CudaSgemm cudaTransposedGemm;
 
         @Override
         protected void setup() {
@@ -118,8 +112,9 @@ public abstract class AbstractGemmSandbox {
             parallelizedGemm = new JavaGemm.ParallelizedSgemm(matrixExecutor);
             parallelizedTransposedSgemm = new JavaGemm.ParallelizedTransposedSgemm(matrixExecutor);
             cublasGemm = new CublasSgemm(cuda, cublas);
-            cudaGemm = new CudaSgemm(cuda, cudaDevice, false);
-            cudaTiledGemm = new CudaSgemm(cuda, cudaDevice, true);
+            cudaGemm = new CudaSgemm(cuda, matrixExecutor, cudaDevice, false, false);
+            cudaTiledGemm = new CudaSgemm(cuda, matrixExecutor, cudaDevice, true, false);
+            cudaTransposedGemm = new CudaSgemm(cuda, matrixExecutor, cudaDevice, false, true);
         }
 
         @Override
@@ -130,6 +125,8 @@ public abstract class AbstractGemmSandbox {
             if (parallelizedTransposedSgemm != null) parallelizedTransposedSgemm.close();
             if (cublasGemm != null) cublasGemm.close();
             if (cudaGemm != null) cudaGemm.close();
+            if (cudaTiledGemm != null) cudaTiledGemm.close();
+            if (cudaTransposedGemm != null) cudaTransposedGemm.close();
         }
 
         @Override
@@ -145,6 +142,7 @@ public abstract class AbstractGemmSandbox {
         protected static CublasDgemm cublasGemm;
         protected static CudaDgemm cudaGemm;
         protected static CudaDgemm cudaTiledGemm;
+        protected static CudaDgemm cudaTransposedGemm;
 
         @Override
         protected void setup() {
@@ -153,8 +151,9 @@ public abstract class AbstractGemmSandbox {
             parallelizedGemm = new JavaGemm.ParallelizedDgemm(matrixExecutor);
             parallelizedTransposedSgemm = new JavaGemm.ParallelizedTransposedDgemm(matrixExecutor);
             cublasGemm = new CublasDgemm(cuda, cublas);
-            cudaGemm = new CudaDgemm(cuda, cudaDevice, false);
-            cudaTiledGemm = new CudaDgemm(cuda, cudaDevice, true);
+            cudaGemm = new CudaDgemm(cuda, matrixExecutor, cudaDevice, false, false);
+            cudaTiledGemm = new CudaDgemm(cuda, matrixExecutor, cudaDevice, true, false);
+            cudaTransposedGemm = new CudaDgemm(cuda, matrixExecutor, cudaDevice, false, true);
         }
 
         @Override
@@ -165,6 +164,8 @@ public abstract class AbstractGemmSandbox {
             if (parallelizedTransposedSgemm != null) parallelizedTransposedSgemm.close();
             if (cublasGemm != null) cublasGemm.close();
             if (cudaGemm != null) cudaGemm.close();
+            if (cudaTiledGemm != null) cudaTiledGemm.close();
+            if (cudaTransposedGemm != null) cudaTransposedGemm.close();
         }
 
         @Override

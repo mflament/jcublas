@@ -34,6 +34,7 @@ public class DgemmBenchSandbox extends AbstractDgemmSandbox {
         bench(cublasGemm);
         bench(cudaGemm);
         bench(cudaTiledGemm);
+        bench(cudaTransposedGemm);
     }
 
     private void bench(Gemm.Dgemm gemm) {
