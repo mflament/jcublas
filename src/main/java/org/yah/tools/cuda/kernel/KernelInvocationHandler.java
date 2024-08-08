@@ -3,6 +3,7 @@ package org.yah.tools.cuda.kernel;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import org.yah.tools.cuda.driver.CUresult;
 import org.yah.tools.cuda.driver.DriverAPI;
 
 import java.lang.reflect.Method;
@@ -24,6 +25,8 @@ public class KernelInvocationHandler {
         Parameter[] parameters = method.getParameters();
         if (parameters.length == 0 || !parameters[0].getType().isAssignableFrom(ExecutionConfig.class))
             throw new IllegalArgumentException("First parameter of kernel method " + method + " must be an instance of " + ExecutionConfig.class.getName());
+        if (!CUresult.class.isAssignableFrom(method.getReturnType()))
+            throw new IllegalArgumentException("return type of kernel method " + method + " must be an instance of " + CUresult.class.getName());
 
         int kernelParameterCount = parameters.length - 1;
         parameterOffsets = new long[kernelParameterCount];
@@ -70,15 +73,15 @@ public class KernelInvocationHandler {
         }
     }
 
-    public void invoke(Object[] args) {
+    public CUresult invoke(Object[] args) {
         ExecutionConfig executionConfig = (ExecutionConfig) args[0];
         Objects.requireNonNull(executionConfig, "executionConfig is null");
         for (int i = 0; i < parameterWriters.length; i++) {
             parameterWriters[i].write(parametersMemory, parameterOffsets[i], args[i + 1]);
         }
-        driverAPI.cuLaunchKernel(functionPointer, executionConfig.gridDim().x, executionConfig.gridDim().y, executionConfig.gridDim().z,
+        return driverAPI.cuLaunchKernel(functionPointer, executionConfig.gridDim().x, executionConfig.gridDim().y, executionConfig.gridDim().z,
                 executionConfig.blockDim().x, executionConfig.blockDim().y, executionConfig.blockDim().z, (int) executionConfig.shared(),
-                executionConfig.stream(), parameterPointers, null).check();
+                executionConfig.stream(), parameterPointers, null);
     }
 
     @FunctionalInterface

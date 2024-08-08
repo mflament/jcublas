@@ -93,6 +93,24 @@ public interface RuntimeAPI extends Library {
 
     cudaError_t cudaGetFuncBySymbol(PointerByReference functionPtr, Pointer symbolPtr);
 
+    /**
+     * Set resource limits
+     *
+     * @param limit <i>enum cudaLimit</i>
+     * @param value <i>size_t</i>
+     * @return {@link cudaError_t}
+     */
+    cudaError_t cudaDeviceSetLimit(cudaLimit limit, long value);
+
+    /**
+     * Return resource limits
+     *
+     * @param pValue <i>size_t *</i>
+     * @param limit <i>enum cudaLimit</i>
+     * @return {@link cudaError_t}
+     */
+    cudaError_t cudaDeviceGetLimit(LongByReference pValue, cudaLimit limit);
+
     static RuntimeAPI load() {
         return load(CudaLibrarySupport.lookupLibrary("cudart"));
     }

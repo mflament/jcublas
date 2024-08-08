@@ -24,7 +24,6 @@ public class ModuleInvocationHandler implements InvocationHandler {
         KernelInvocationHandler invocationHandler = handlers.get(method.getName());
         if (invocationHandler == null)
             throw new IllegalStateException("Unhandled method " + method);
-        invocationHandler.invoke(args);
-        return null;
+        return invocationHandler.invoke(args);
     }
 }

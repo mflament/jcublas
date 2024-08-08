@@ -6,15 +6,14 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yah.tools.cuda.driver.CUdevice_attribute;
 import org.yah.tools.cuda.driver.CUresult;
 import org.yah.tools.cuda.driver.DriverAPI;
 import org.yah.tools.cuda.nvrtc.NVRTC;
 import org.yah.tools.cuda.nvrtc.nvrtcResult;
-import org.yah.tools.cuda.runtime.RuntimeAPI;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
@@ -26,13 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class KernelSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KernelSupport.class);
 
     private static final Collection<String> DEFAULT_OPTIONS = List.of("-rdc=true");
 
-    private final RuntimeAPI runtimeAPI;
     private final DriverAPI driverAPI;
     private final NVRTC nvrtc;
 
@@ -42,12 +41,11 @@ public class KernelSupport {
     // temporary variables
     private final PointerByReference ptrRef = new PointerByReference();
 
-    public KernelSupport(RuntimeAPI runtimeAPI, int deviceOrdinal) {
-        this(runtimeAPI, deviceOrdinal, DriverAPI.load(), NVRTC.load());
+    public KernelSupport(int deviceOrdinal) {
+        this(deviceOrdinal, DriverAPI.load(), NVRTC.load());
     }
 
-    public KernelSupport(RuntimeAPI runtimeAPI, int deviceOrdinal, DriverAPI driverAPI, NVRTC nvrtc) {
-        this.runtimeAPI = runtimeAPI;
+    public KernelSupport(int deviceOrdinal, DriverAPI driverAPI, NVRTC nvrtc) {
         this.driverAPI = driverAPI;
         this.nvrtc = nvrtc;
 
@@ -180,7 +178,6 @@ public class KernelSupport {
                 throw new IllegalArgumentException("Duplicate kernel method " + name + " in " + moduleInterface.getName());
             CUFunction kernelFunction = getKernelFunction(module, name);
             KernelInvocationHandler handler = new KernelInvocationHandler(driverAPI, kernelFunction.pointer(), method);
-
             invocationHandlers.put(name, handler);
         }
         //noinspection unchecked
