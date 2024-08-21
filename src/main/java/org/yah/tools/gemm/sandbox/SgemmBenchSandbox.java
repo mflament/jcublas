@@ -17,6 +17,7 @@ public class SgemmBenchSandbox extends AbstractSgemmSandbox {
 
     @Override
     protected void setup() {
+        M = 5000;
         super.setup();
         A = new float[M * K];
         B = new float[K * N];
