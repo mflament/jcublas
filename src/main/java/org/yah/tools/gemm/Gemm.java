@@ -2,9 +2,9 @@ package org.yah.tools.gemm;
 
 public interface Gemm extends AutoCloseable {
 
-    default String name() {
-        return getClass().getSimpleName();
-    }
+    GemmId id();
+
+    String name();
 
     Times times();
 
@@ -24,7 +24,6 @@ public interface Gemm extends AutoCloseable {
                    double alpha, double[] A, int lda,
                    double[] B, int ldb,
                    double beta, double[] C, int ldc);
-
     }
 
 }

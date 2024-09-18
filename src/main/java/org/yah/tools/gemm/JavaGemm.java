@@ -1,15 +1,10 @@
 package org.yah.tools.gemm;
 
+import org.yah.tools.gemm.Times.Operation;
+
 import java.util.Objects;
 
 public abstract class JavaGemm implements Gemm {
-
-    protected final Times times = new Times();
-
-    @Override
-    public final Times times() {
-        return times;
-    }
 
     @Override
     public String toString() {
@@ -17,9 +12,30 @@ public abstract class JavaGemm implements Gemm {
     }
 
     public static final class SingleThreadSgemm extends JavaGemm implements Sgemm {
+        private final Times times;
+
+        public SingleThreadSgemm() {
+            this.times = new Times(name());
+        }
+
+        @Override
+        public Times times() {
+            return times;
+        }
+
+        @Override
+        public String name() {
+            return "CPU(1T)";
+        }
+
+        @Override
+        public GemmId id() {
+            return GemmId.ST;
+        }
+
         @Override
         public void sgemm(int M, int N, int K, float alpha, float[] A, int lda, float[] B, int ldb, float beta, float[] C, int ldc) {
-            times.measure("sgemm", () -> {
+            times.measure(Operation.GEMM, () -> {
                 for (int n = 0; n < N; n++) {
                     for (int m = 0; m < M; m++) {
                         float temp = 0;
@@ -37,9 +53,30 @@ public abstract class JavaGemm implements Gemm {
     }
 
     public static final class SingleThreadDgemm extends JavaGemm implements Dgemm {
+        private final Times times;
+
+        public SingleThreadDgemm() {
+            this.times = new Times(name());
+        }
+
+        @Override
+        public Times times() {
+            return times;
+        }
+
+        @Override
+        public GemmId id() {
+            return GemmId.ST;
+        }
+
+        @Override
+        public String name() {
+            return "CPU(1T)";
+        }
+
         @Override
         public void dgemm(int M, int N, int K, double alpha, double[] A, int lda, double[] B, int ldb, double beta, double[] C, int ldc) {
-            times.measure("dgemm", () -> {
+            times.measure(Operation.GEMM, () -> {
                 for (int n = 0; n < N; n++) {
                     for (int m = 0; m < M; m++) {
                         double temp = 0;
@@ -59,13 +96,31 @@ public abstract class JavaGemm implements Gemm {
     public static final class ParallelizedSgemm extends JavaGemm implements Sgemm {
         private final MatrixExecutor executor;
 
+        private final Times times;
+
         public ParallelizedSgemm(MatrixExecutor executor) {
             this.executor = Objects.requireNonNull(executor, "executor is null");
+            this.times = new Times(name());
+        }
+
+        @Override
+        public Times times() {
+            return times;
+        }
+
+        @Override
+        public GemmId id() {
+            return GemmId.MT;
+        }
+
+        @Override
+        public String name() {
+            return String.format("CPU(%dT)", executor.threads());
         }
 
         @Override
         public void sgemm(int M, int N, int K, float alpha, float[] A, int lda, float[] B, int ldb, float beta, float[] C, int ldc) {
-            times.measure("sgemm", () ->
+            times.measure(Operation.GEMM, () ->
                     executor.parallelize(M, N, (row, col) -> cellGemm(K, alpha, A, lda, B, ldb, beta, C, ldc, row, col))
             );
         }
@@ -86,14 +141,31 @@ public abstract class JavaGemm implements Gemm {
 
     public static final class ParallelizedDgemm extends JavaGemm implements Dgemm {
         private final MatrixExecutor executor;
+        private final Times times;
 
         public ParallelizedDgemm(MatrixExecutor executor) {
             this.executor = Objects.requireNonNull(executor, "executor is null");
+            times = new Times(name());
+        }
+
+        @Override
+        public Times times() {
+            return times;
+        }
+
+        @Override
+        public GemmId id() {
+            return GemmId.MT;
+        }
+
+        @Override
+        public String name() {
+            return String.format("CPU(%dT)", executor.threads());
         }
 
         @Override
         public void dgemm(int M, int N, int K, double alpha, double[] A, int lda, double[] B, int ldb, double beta, double[] C, int ldc) {
-            times.measure("dgemm", () ->
+            times.measure(Operation.GEMM, () ->
                     executor.parallelize(M, N, (row, col) -> cellGemm(K, alpha, A, lda, B, ldb, beta, C, ldc, row, col))
             );
         }
@@ -114,19 +186,36 @@ public abstract class JavaGemm implements Gemm {
     public static final class ParallelizedTransposedSgemm extends JavaGemm implements Sgemm {
         private final MatrixExecutor executor;
         private float[] transposedA;
+        private final Times times;
 
         public ParallelizedTransposedSgemm(MatrixExecutor executor) {
             this.executor = Objects.requireNonNull(executor, "executor is null");
+            times = new Times(name());
+        }
+
+        @Override
+        public Times times() {
+            return times;
+        }
+
+        @Override
+        public GemmId id() {
+            return GemmId.MT_TRANSPOSED;
+        }
+
+        @Override
+        public String name() {
+            return String.format("CPU(%dT)+TR", executor.threads());
         }
 
         @Override
         public void sgemm(int M, int N, int K, float alpha, float[] A, int lda, float[] B, int ldb, float beta, float[] C, int ldc) {
-            times.measure("transpose", () -> {
+            times.measure(Operation.TRANSPOSE, () -> {
                 if (transposedA == null || transposedA.length < A.length)
                     transposedA = new float[A.length];
                 JavaGemm.transpose(executor, M, K, transposedA, A, lda);
             });
-            times.measure("sgemm", () ->
+            times.measure(Operation.GEMM, () ->
                     executor.parallelize(M, N, (row, col) -> cellGemm(K, alpha, transposedA, K, B, ldb, beta, C, ldc, row, col))
             );
         }
@@ -148,19 +237,36 @@ public abstract class JavaGemm implements Gemm {
     public static final class ParallelizedTransposedDgemm extends JavaGemm implements Dgemm {
         private final MatrixExecutor executor;
         private double[] transposedA;
+        private final Times times;
 
         public ParallelizedTransposedDgemm(MatrixExecutor executor) {
             this.executor = Objects.requireNonNull(executor, "executor is null");
+            times = new Times(name());
+        }
+
+        @Override
+        public Times times() {
+            return times;
+        }
+
+        @Override
+        public GemmId id() {
+            return GemmId.MT_TRANSPOSED;
+        }
+
+        @Override
+        public String name() {
+            return String.format("CPU(%dT)+TR", executor.threads());
         }
 
         @Override
         public void dgemm(int M, int N, int K, double alpha, double[] A, int lda, double[] B, int ldb, double beta, double[] C, int ldc) {
-            times.measure("transpose", () -> {
+            times.measure(Operation.TRANSPOSE, () -> {
                 if (transposedA == null || transposedA.length < A.length)
                     transposedA = new double[A.length];
                 JavaGemm.transpose(executor, M, K, transposedA, A, lda);
             });
-            times.measure("dgemm",
+            times.measure(Operation.GEMM,
                     () -> executor.parallelize(M, N, (row, col) -> cellGemm(K, alpha, transposedA, K, B, ldb, beta, C, ldc, row, col)));
         }
 
@@ -178,12 +284,12 @@ public abstract class JavaGemm implements Gemm {
     }
 
     public static void transpose(MatrixExecutor matrixExecutor, int rows, int cols,
-                                  float[] dst, float[] src, int ld) {
+                                 float[] dst, float[] src, int ld) {
         matrixExecutor.parallelize(rows, cols, (row, col) -> dst[IDX2C(col, row, cols)] = src[IDX2C(row, col, ld)]);
     }
 
     public static void transpose(MatrixExecutor matrixExecutor, int rows, int cols,
-                                  double[] dst, double[] src, int ld) {
+                                 double[] dst, double[] src, int ld) {
         matrixExecutor.parallelize(rows, cols, (row, col) -> dst[IDX2C(col, row, cols)] = src[IDX2C(row, col, ld)]);
     }
 

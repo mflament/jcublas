@@ -7,6 +7,7 @@ import org.yah.tools.cuda.kernel.ExecutionConfig;
 import org.yah.tools.cuda.kernel.KernelSupport;
 import org.yah.tools.cuda.runtime.RuntimeAPI;
 import org.yah.tools.cuda.runtime.dim3;
+import org.yah.tools.gemm.Times.Operation;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -40,13 +41,21 @@ public abstract class CudaGemm extends AbstractCudaGemm {
 
     private static final int TILE_SIZE = 32;
 
+    private final GemmId id;
+    private final String name;
+
     private final KernelSupport kernelSupport;
     protected final Pointer cuContext;
     protected final Pointer cuModule;
+    protected final Times times;
     protected GemmKernels gemmKernels;
 
-    public CudaGemm(RuntimeAPI cuda, int deviceOrdinal, String sourcePath, Map<String, String> defines) {
+    protected CudaGemm(RuntimeAPI cuda, int deviceOrdinal, String sourcePath, Map<String, String> defines,
+                       boolean tiled, boolean transposed) {
         super(cuda);
+        this.id = getId(tiled, transposed);
+        this.name = getName(tiled, transposed);
+        this.times = new Times(name);
         kernelSupport = new KernelSupport(deviceOrdinal);
         Pointer program = kernelSupport.compile(loadSource(sourcePath), defines);
         Memory ptx = kernelSupport.getPTX(program);
@@ -61,6 +70,37 @@ public abstract class CudaGemm extends AbstractCudaGemm {
     }
 
     @Override
+    public GemmId id() {
+        return id;
+    }
+
+    @Override
+    public String name() {
+        return name;
+    }
+
+    @Override
+    public Times times() {
+        return times;
+    }
+
+    protected final GemmId getId(boolean tiled, boolean transposed) {
+        if (tiled && transposed)
+            return GemmId.CUDA_TILED_TRANSPOSED;
+        if (tiled)
+            return GemmId.CUDA_TILED;
+        return GemmId.CUDA;
+    }
+
+    protected final String getName(boolean tiled, boolean transposed) {
+        if (transposed)
+            return "cuda+tiled+TR";
+        if (tiled)
+            return "cuda+tiled";
+        return "cuda";
+    }
+
+    @Override
     public void close() {
         super.close();
         kernelSupport.unloadModule(cuModule);
@@ -71,30 +111,17 @@ public abstract class CudaGemm extends AbstractCudaGemm {
         private final MatrixExecutor matrixExecutor;
         private final ExecutionConfig executionConfig = new ExecutionConfig();
         private final dim3 blockDim;
-        private final String name;
         private final boolean transpose;
         private float[] transposedA;
 
         public CudaSgemm(RuntimeAPI cuda, MatrixExecutor matrixExecutor, int deviceOrdinal, boolean tiled, boolean transposed) {
             super(cuda, deviceOrdinal, transposed ? "cuda/transposed_gemm.cu" : tiled ? "cuda/tiled_gemm.cu" : "cuda/gemm.cu",
-                    Map.of("BLOCK_SIZE", Integer.toString(TILE_SIZE)));
+                    Map.of("BLOCK_SIZE", Integer.toString(TILE_SIZE)), tiled, transposed);
             this.matrixExecutor = matrixExecutor;
             transpose = transposed;
-            if (transpose) {
-                this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
-                this.name = "cuda transposed sgemm";
-            } else if (tiled) {
-                this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
-                this.name = "cuda tiled sgemm";
-            } else {
-                this.blockDim = CUDA_BLOCK_SIZE;
-                this.name = "cuda sgemm";
-            }
-        }
-
-        @Override
-        public String name() {
-            return name;
+            if (transpose) this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
+            else if (tiled) this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
+            else this.blockDim = CUDA_BLOCK_SIZE;
         }
 
         @Override
@@ -102,7 +129,7 @@ public abstract class CudaGemm extends AbstractCudaGemm {
             int tlda = lda;
             float[] tA = A;
             if (transpose) {
-                times.measure("transpose", () -> {
+                times.measure(Operation.TRANSPOSE, () -> {
                     if (transposedA == null || transposedA.length < A.length)
                         transposedA = new float[A.length];
                     JavaGemm.transpose(matrixExecutor, M, K, transposedA, A, lda);
@@ -117,7 +144,7 @@ public abstract class CudaGemm extends AbstractCudaGemm {
             Pointer gpuC = beta == 0 ? Cmc.allocate(M * N * (long) Float.BYTES) : Cmc.write(M, N, C);
             hostAlpha.setFloat(0, alpha);
             hostBeta.setFloat(0, beta);
-            times.addNanos("write", System.nanoTime() - start);
+            times.addNanos(Operation.WRITE, System.nanoTime() - start);
 
             executionConfig.blockDim(blockDim);
             executionConfig.gridDim(ceil_div(N, blockDim.x), ceil_div(M, blockDim.y), 1);
@@ -125,11 +152,11 @@ public abstract class CudaGemm extends AbstractCudaGemm {
             start = System.nanoTime();
             gemmKernels.sgemm(executionConfig, M, N, K, alpha, gpuA, tlda, gpuB, ldb, beta, gpuC, ldc).check();
             cuda.cudaDeviceSynchronize().check();
-            times.addNanos("sgemm", System.nanoTime() - start);
+            times.addNanos(Operation.GEMM, System.nanoTime() - start);
 
             start = System.nanoTime();
             Cmc.read(M, N, C);
-            times.addNanos("read", System.nanoTime() - start);
+            times.addNanos(Operation.READ, System.nanoTime() - start);
         }
     }
 
@@ -137,30 +164,17 @@ public abstract class CudaGemm extends AbstractCudaGemm {
         private final MatrixExecutor matrixExecutor;
         private final ExecutionConfig executionConfig = new ExecutionConfig();
         private final dim3 blockDim;
-        private final String name;
         private final boolean transpose;
         private double[] transposedA;
 
         public CudaDgemm(RuntimeAPI cuda, MatrixExecutor matrixExecutor, int deviceOrdinal, boolean tiled, boolean transposed) {
             super(cuda, deviceOrdinal, transposed ? "cuda/transposed_gemm.cu" : tiled ? "cuda/tiled_gemm.cu" : "cuda/gemm.cu",
-                    Map.of("BLOCK_SIZE", Integer.toString(TILE_SIZE)));
+                    Map.of("BLOCK_SIZE", Integer.toString(TILE_SIZE)), tiled, transposed);
             this.matrixExecutor = matrixExecutor;
             transpose = transposed;
-            if (transpose) {
-                this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
-                this.name = "cuda transposed dgemm";
-            } else if (tiled) {
-                this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
-                this.name = "cuda tiled dgemm";
-            } else {
-                this.blockDim = CUDA_BLOCK_SIZE;
-                this.name = "cuda dgemm";
-            }
-        }
-
-        @Override
-        public String name() {
-            return name;
+            if (transpose) this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
+            else if (tiled) this.blockDim = new dim3(TILE_SIZE, TILE_SIZE, 1);
+            else this.blockDim = CUDA_BLOCK_SIZE;
         }
 
         @Override
@@ -168,7 +182,7 @@ public abstract class CudaGemm extends AbstractCudaGemm {
             int tlda = lda;
             double[] tA = A;
             if (transpose) {
-                times.measure("transpose", () -> {
+                times.measure(Operation.TRANSPOSE, () -> {
                     if (transposedA == null || transposedA.length < A.length)
                         transposedA = new double[A.length];
                     JavaGemm.transpose(matrixExecutor, M, K, transposedA, A, lda);
@@ -183,7 +197,7 @@ public abstract class CudaGemm extends AbstractCudaGemm {
             Pointer gpuC = beta == 0 ? Cmc.allocate(M * N * (long) Double.BYTES) : Cmc.write(M, N, C);
             hostAlpha.setDouble(0, alpha);
             hostBeta.setDouble(0, beta);
-            times.addNanos("write", System.nanoTime() - start);
+            times.addNanos(Operation.WRITE, System.nanoTime() - start);
 
             executionConfig.blockDim(blockDim);
             executionConfig.gridDim(ceil_div(N, blockDim.x), ceil_div(M, blockDim.y), 1);
@@ -191,11 +205,11 @@ public abstract class CudaGemm extends AbstractCudaGemm {
             start = System.nanoTime();
             gemmKernels.dgemm(executionConfig, M, N, K, alpha, gpuA, tlda, gpuB, ldb, beta, gpuC, ldc).check();
             cuda.cudaDeviceSynchronize().check();
-            times.addNanos("dgemm", System.nanoTime() - start);
+            times.addNanos(Operation.GEMM, System.nanoTime() - start);
 
             start = System.nanoTime();
             Cmc.read(M, N, C);
-            times.addNanos("read", System.nanoTime() - start);
+            times.addNanos(Operation.READ, System.nanoTime() - start);
         }
     }
 

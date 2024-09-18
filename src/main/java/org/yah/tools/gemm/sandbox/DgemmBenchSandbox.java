@@ -1,11 +1,13 @@
 package org.yah.tools.gemm.sandbox;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yah.tools.gemm.Gemm;
 import org.yah.tools.gemm.sandbox.AbstractGemmSandbox.AbstractDgemmSandbox;
 
 public class DgemmBenchSandbox extends AbstractDgemmSandbox {
 
-    private static final int runs = 3;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DgemmBenchSandbox.class);
 
     private double[] A;
     private double[] B;
@@ -22,27 +24,26 @@ public class DgemmBenchSandbox extends AbstractDgemmSandbox {
         B = new double[K * N];
         C = new double[M * N];
 
-        System.out.println("generate inputs");
+        long start = System.nanoTime();
         matrixExecutor.parallelize(M, K, threadIndex -> randomizer(1234 + threadIndex, A, M));
         matrixExecutor.parallelize(K, N, threadIndex -> randomizer(5678 + threadIndex, B, K));
+        LOGGER.info("generate inputs: {}ms", formatTime((System.nanoTime() - start) * 1E-6, 1));
     }
 
     protected void run() {
-//        bench(singleThreadGemm);
+        bench(singleThreadGemm);
         bench(parallelizedGemm);
         bench(parallelizedTransposedSgemm);
         bench(cublasGemm);
         bench(cudaGemm);
         bench(cudaTiledGemm);
         bench(cudaTransposedGemm);
+        System.out.println(formatTimes());
+        exportCSV("dgemm.csv");
     }
 
     private void bench(Gemm.Dgemm gemm) {
-        System.out.print(gemm);
-        for (int i = 0; i < runs; i++) {
-            gemm.dgemm(M, N, K, 1, A, M, B, K, 0, C, M);
-        }
-        System.out.println(" " + gemm.times());
+        bench(gemm, g -> g.dgemm(M, N, K, 1, A, M, B, K, 0, C, M));
     }
 
 }

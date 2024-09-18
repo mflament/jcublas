@@ -2,13 +2,18 @@ package org.yah.tools.gemm;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yah.tools.cuda.cublas.*;
 import org.yah.tools.cuda.runtime.RuntimeAPI;
+import org.yah.tools.gemm.Times.Operation;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
 public abstract class CublasGemm extends AbstractCudaGemm {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CublasGemm.class);
 
     public static class GemmConfig {
         private final cublasAtomicsMode_t atomicMode;
@@ -28,12 +33,29 @@ public abstract class CublasGemm extends AbstractCudaGemm {
     protected final cublasHandle_t handle;
 
     protected GemmConfig config;
+    protected final Times times;
 
     protected CublasGemm(RuntimeAPI cuda, CublasAPI cublas) {
         super(cuda);
+        times = new Times(this.name());
         this.cublas = Objects.requireNonNull(cublas, "cublas is null");
         this.handle = createCublasHandle(cublas);
         cublas.cublasSetPointerMode(handle, cublasPointerMode_t.CUBLAS_POINTER_MODE_HOST).check();
+    }
+
+    @Override
+    public String name() {
+        return "cublas";
+    }
+
+    @Override
+    public Times times() {
+        return times;
+    }
+
+    @Override
+    public GemmId id() {
+        return GemmId.CUBLAS;
     }
 
     private static cublasHandle_t createCublasHandle(CublasAPI cublas) {
@@ -47,7 +69,7 @@ public abstract class CublasGemm extends AbstractCudaGemm {
         int major = version / 10000;
         int minor = (version - major * 10000) / 100;
         int subminor = version - major * 10000 - minor * 100;
-        System.out.printf("cublas version %d.%d.%d%n", major, minor, subminor);
+        LOGGER.debug("cublas version {}.{}.{}", major, minor, subminor);
         return handle;
     }
 
@@ -75,6 +97,11 @@ public abstract class CublasGemm extends AbstractCudaGemm {
         }
 
         @Override
+        public GemmId id() {
+            return GemmId.CUBLAS;
+        }
+
+        @Override
         public void sgemm(int M, int N, int K, float alpha, float[] A, int lda, float[] B, int ldb, float beta, float[] C, int ldc) {
             long start = System.nanoTime();
             Pointer gpuA = Amc.write(M, K, A);
@@ -82,7 +109,7 @@ public abstract class CublasGemm extends AbstractCudaGemm {
             Pointer gpuC = beta == 0 ? Cmc.allocate(M * N * (long) Float.BYTES) : Cmc.write(M, N, C);
             hostAlpha.setFloat(0, alpha);
             hostBeta.setFloat(0, beta);
-            times.addNanos("write", System.nanoTime() - start);
+            times.addNanos(Operation.WRITE, System.nanoTime() - start);
 
             start = System.nanoTime();
             if (config != null) {
@@ -98,11 +125,11 @@ public abstract class CublasGemm extends AbstractCudaGemm {
                         hostBeta, gpuC, ldc).check();
             }
             cuda.cudaDeviceSynchronize().check();
-            times.addNanos("sgemm", System.nanoTime() - start);
+            times.addNanos(Operation.GEMM, System.nanoTime() - start);
 
             start = System.nanoTime();
             Cmc.read(M, N, C);
-            times.addNanos("read", System.nanoTime() - start);
+            times.addNanos(Operation.READ, System.nanoTime() - start);
         }
     }
 
@@ -121,7 +148,7 @@ public abstract class CublasGemm extends AbstractCudaGemm {
             Pointer gpuC = beta == 0 ? Cmc.allocate(M * N * (long) Double.BYTES) : Cmc.write(M, N, C);
             hostAlpha.setDouble(0, alpha);
             hostBeta.setDouble(0, beta);
-            times.addNanos("write", System.nanoTime() - start);
+            times.addNanos(Operation.WRITE, System.nanoTime() - start);
 
             start = System.nanoTime();
             if (config != null) {
@@ -137,11 +164,11 @@ public abstract class CublasGemm extends AbstractCudaGemm {
                         hostBeta, gpuC, ldc).check();
             }
             cuda.cudaDeviceSynchronize().check();
-            times.addNanos("dgemm", System.nanoTime() - start);
+            times.addNanos(Operation.GEMM, System.nanoTime() - start);
 
             start = System.nanoTime();
             Cmc.read(M, N, C);
-            times.addNanos("read", System.nanoTime() - start);
+            times.addNanos(Operation.READ, System.nanoTime() - start);
         }
     }
 

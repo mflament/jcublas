@@ -1,11 +1,13 @@
 package org.yah.tools.gemm.sandbox;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yah.tools.gemm.Gemm;
 import org.yah.tools.gemm.sandbox.AbstractGemmSandbox.AbstractSgemmSandbox;
 
 public class SgemmBenchSandbox extends AbstractSgemmSandbox {
 
-    private static final int runs = 3;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SgemmBenchSandbox.class);
 
     private float[] A;
     private float[] B;
@@ -17,34 +19,32 @@ public class SgemmBenchSandbox extends AbstractSgemmSandbox {
 
     @Override
     protected void setup() {
-        M = 5000;
         super.setup();
         A = new float[M * K];
         B = new float[K * N];
         C = new float[M * N];
 
-        System.out.println("generate inputs");
+        long start = System.nanoTime();
         matrixExecutor.parallelize(M, K, threadIndex -> randomizer(1234 + threadIndex, A, M));
         matrixExecutor.parallelize(K, N, threadIndex -> randomizer(5678 + threadIndex, B, K));
+        LOGGER.info("generate inputs: {}ms", formatTime((System.nanoTime() - start) * 1E-6, 1));
     }
 
     @Override
     protected void run() {
-//        bench(singleThreadGemm);
+        bench(singleThreadGemm);
         bench(parallelizedGemm);
         bench(parallelizedTransposedSgemm);
         bench(cublasGemm);
         bench(cudaGemm);
         bench(cudaTiledGemm);
         bench(cudaTransposedGemm);
+        System.out.println(formatTimes());
+        exportCSV("sgemm.csv");
     }
 
     private void bench(Gemm.Sgemm gemm) {
-        System.out.print(gemm);
-        for (int i = 0; i < runs; i++) {
-            gemm.sgemm(M, N, K, 1, A, M, B, K, 0, C, M);
-        }
-        System.out.println(" " + gemm.times());
+        bench(gemm, g -> g.sgemm(M, N, K, 1, A, M, B, K, 0, C, M));
     }
 
 }

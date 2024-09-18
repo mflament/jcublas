@@ -8,7 +8,7 @@ import org.yah.tools.cuda.runtime.cudaMemcpyKind;
 
 import java.util.Objects;
 
-public class AbstractCudaGemm implements Gemm {
+public abstract class AbstractCudaGemm implements Gemm {
 
     protected final RuntimeAPI cuda;
 
@@ -20,8 +20,6 @@ public class AbstractCudaGemm implements Gemm {
     protected final Memory hostAlpha;
     protected final Memory hostBeta;
 
-    protected final Times times = new Times();
-
     protected AbstractCudaGemm(RuntimeAPI cuda) {
         this.cuda = Objects.requireNonNull(cuda, "cuda is null");
 
@@ -31,11 +29,6 @@ public class AbstractCudaGemm implements Gemm {
 
         hostAlpha = new Memory(Double.BYTES);
         hostBeta = new Memory(Double.BYTES);
-    }
-
-    @Override
-    public final Times times() {
-        return times;
     }
 
     @Override
