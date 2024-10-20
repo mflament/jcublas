@@ -46,7 +46,7 @@ public interface RuntimeAPI extends Library {
 
     cudaError_t cudaMemGetInfo(LongByReference free, LongByReference total);
 
-    cudaError_t cudaHostRegister(PointerByReference ptr, long size, int flags);
+    cudaError_t cudaHostRegister(Pointer ptr, long size, int flags);
 
     cudaError_t cudaHostUnregister(Pointer ptr);
 

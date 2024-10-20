@@ -7,6 +7,8 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
+import javax.annotation.Nullable;
+
 @SuppressWarnings("unused")
 public interface DriverAPI extends Library {
 
@@ -14,7 +16,7 @@ public interface DriverAPI extends Library {
      * Gets the string description of an error code
      *
      * @param error <i>CUresult</i>
-     * @param pStr <i>const char **</i>
+     * @param pStr  <i>const char **</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__ERROR.html#group__CUDA__ERROR_1g72758fcaf05b5c7fac5c25ead9445ada">cuGetErrorString</a>
      */
@@ -24,7 +26,7 @@ public interface DriverAPI extends Library {
      * Gets the string representation of an error code enum name
      *
      * @param error <i>CUresult</i>
-     * @param pStr <i>const char **</i>
+     * @param pStr  <i>const char **</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__ERROR.html#group__CUDA__ERROR_1g2c4ac087113652bb3d1f95bf2513c468">cuGetErrorName</a>
      */
@@ -55,7 +57,7 @@ public interface DriverAPI extends Library {
     /**
      * Returns a handle to a compute device
      *
-     * @param device <i>CUdevice *</i>
+     * @param device  <i>CUdevice *</i>
      * @param ordinal <i>int</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__DEVICE.html#group__CUDA__DEVICE_1g8bdd1cc7201304b01357b8034f6587cb">cuDeviceGet</a>
@@ -75,8 +77,8 @@ public interface DriverAPI extends Library {
      * Returns an identifier string for the device
      *
      * @param name <i>char *</i>
-     * @param len <i>int</i>
-     * @param dev <i>CUdevice</i>
+     * @param len  <i>int</i>
+     * @param dev  <i>CUdevice</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__DEVICE.html#group__CUDA__DEVICE_1gef75aa30df95446a845f2a7b9fffbb7f">cuDeviceGetName</a>
      */
@@ -85,9 +87,9 @@ public interface DriverAPI extends Library {
     /**
      * Returns information about the device
      *
-     * @param pi <i>int *</i>
+     * @param pi     <i>int *</i>
      * @param attrib <i>CUdevice_attribute</i>
-     * @param dev <i>CUdevice</i>
+     * @param dev    <i>CUdevice</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__DEVICE.html#group__CUDA__DEVICE_1g9c3e1414f0ad901d3278a4d6645fc266">cuDeviceGetAttribute</a>
      */
@@ -97,7 +99,7 @@ public interface DriverAPI extends Library {
      * Retain the primary context on the GPU
      *
      * @param pctx <i>CUcontext *</i>
-     * @param dev <i>CUdevice</i>
+     * @param dev  <i>CUdevice</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__PRIMARY__CTX.html#group__CUDA__PRIMARY__CTX_1g9051f2d5c31501997a6cb0530290a300">cuDevicePrimaryCtxRetain</a>
      */
@@ -115,7 +117,7 @@ public interface DriverAPI extends Library {
     /**
      * Set flags for the primary context
      *
-     * @param dev <i>CUdevice</i>
+     * @param dev   <i>CUdevice</i>
      * @param flags <i>unsigned int</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__PRIMARY__CTX.html#group__CUDA__PRIMARY__CTX_1gd779a84f17acdad0d9143d9fe719cfdf">cuDevicePrimaryCtxSetFlags</a>
@@ -125,8 +127,8 @@ public interface DriverAPI extends Library {
     /**
      * Get the state of the primary context
      *
-     * @param dev <i>CUdevice</i>
-     * @param flags <i>unsigned int *</i>
+     * @param dev    <i>CUdevice</i>
+     * @param flags  <i>unsigned int *</i>
      * @param active <i>int *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__PRIMARY__CTX.html#group__CUDA__PRIMARY__CTX_1g65f3e018721b6d90aa05cfb56250f469">cuDevicePrimaryCtxGetState</a>
@@ -163,7 +165,7 @@ public interface DriverAPI extends Library {
      * Loads a compute module
      *
      * @param module <i>CUmodule *</i>
-     * @param fname <i>const char *</i>
+     * @param fname  <i>const char *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g366093bd269dafd0af21f1c7d18115d3">cuModuleLoad</a>
      */
@@ -173,7 +175,7 @@ public interface DriverAPI extends Library {
      * Load a module's data
      *
      * @param module <i>CUmodule *</i>
-     * @param image <i>const void *</i>
+     * @param image  <i>const void *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g04ce266ce03720f479eab76136b90c0b">cuModuleLoadData</a>
      */
@@ -182,10 +184,10 @@ public interface DriverAPI extends Library {
     /**
      * Load a module's data with options
      *
-     * @param module <i>CUmodule *</i>
-     * @param image <i>const void *</i>
-     * @param numOptions <i>unsigned int</i>
-     * @param options <i>CUjit_option *</i>
+     * @param module       <i>CUmodule *</i>
+     * @param image        <i>const void *</i>
+     * @param numOptions   <i>unsigned int</i>
+     * @param options      <i>CUjit_option *</i>
      * @param optionValues <i>void **</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g9e8047e9dbf725f0cd7cafd18bfd4d12">cuModuleLoadDataEx</a>
@@ -195,7 +197,7 @@ public interface DriverAPI extends Library {
     /**
      * Load a module's data
      *
-     * @param module <i>CUmodule *</i>
+     * @param module   <i>CUmodule *</i>
      * @param fatCubin <i>const void *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g13a2292b6819f8f86127768334436c3b">cuModuleLoadFatBinary</a>
@@ -215,8 +217,8 @@ public interface DriverAPI extends Library {
      * Returns a function handle
      *
      * @param hfunc <i>CUfunction *</i>
-     * @param hmod <i>CUmodule</i>
-     * @param name <i>const char *</i>
+     * @param hmod  <i>CUmodule</i>
+     * @param name  <i>const char *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1ga52be009b0d4045811b30c965e1cb2cf">cuModuleGetFunction</a>
      */
@@ -226,7 +228,7 @@ public interface DriverAPI extends Library {
      * Returns the number of functions within a module
      *
      * @param count <i>unsigned int *</i>
-     * @param mod <i>CUmodule</i>
+     * @param mod   <i>CUmodule</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1gecc8fb61eca765cb0f1eb32f00cf3b49">cuModuleGetFunctionCount</a>
      */
@@ -235,9 +237,9 @@ public interface DriverAPI extends Library {
     /**
      * Returns the function handles within a module.
      *
-     * @param functions <i>CUfunction *</i>
+     * @param functions    <i>CUfunction *</i>
      * @param numFunctions <i>unsigned int</i>
-     * @param mod <i>CUmodule</i>
+     * @param mod          <i>CUmodule</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g6bdb22a7d9cacf7df5bda2a18082ec50">cuModuleEnumerateFunctions</a>
      */
@@ -246,10 +248,10 @@ public interface DriverAPI extends Library {
     /**
      * Returns a global pointer from a module
      *
-     * @param dptr <i>CUdeviceptr *</i>
+     * @param dptr  <i>CUdeviceptr *</i>
      * @param bytes <i>size_t *</i>
-     * @param hmod <i>CUmodule</i>
-     * @param name <i>const char *</i>
+     * @param hmod  <i>CUmodule</i>
+     * @param name  <i>const char *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1gf3e43672e26073b1081476dbf47a86ab">cuModuleGetGlobal</a>
      */
@@ -258,10 +260,10 @@ public interface DriverAPI extends Library {
     /**
      * Creates a pending JIT linker invocation.
      *
-     * @param numOptions <i>unsigned int</i>
-     * @param options <i>CUjit_option *</i>
+     * @param numOptions   <i>unsigned int</i>
+     * @param options      <i>CUjit_option *</i>
      * @param optionValues <i>void **</i>
-     * @param stateOut <i>CUlinkState *</i>
+     * @param stateOut     <i>CUlinkState *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g86ca4052a2fab369cb943523908aa80d">cuLinkCreate</a>
      */
@@ -270,13 +272,13 @@ public interface DriverAPI extends Library {
     /**
      * Add an input to a pending linker invocation
      *
-     * @param state <i>CUlinkState</i>
-     * @param type <i>CUjitInputType</i>
-     * @param data <i>void *</i>
-     * @param size <i>size_t</i>
-     * @param name <i>const char *</i>
-     * @param numOptions <i>unsigned int</i>
-     * @param options <i>CUjit_option *</i>
+     * @param state        <i>CUlinkState</i>
+     * @param type         <i>CUjitInputType</i>
+     * @param data         <i>void *</i>
+     * @param size         <i>size_t</i>
+     * @param name         <i>const char *</i>
+     * @param numOptions   <i>unsigned int</i>
+     * @param options      <i>CUjit_option *</i>
      * @param optionValues <i>void **</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g3ebcd2ccb772ba9c120937a2d2831b77">cuLinkAddData</a>
@@ -286,11 +288,11 @@ public interface DriverAPI extends Library {
     /**
      * Add a file input to a pending linker invocation
      *
-     * @param state <i>CUlinkState</i>
-     * @param type <i>CUjitInputType</i>
-     * @param path <i>const char *</i>
-     * @param numOptions <i>unsigned int</i>
-     * @param options <i>CUjit_option *</i>
+     * @param state        <i>CUlinkState</i>
+     * @param type         <i>CUjitInputType</i>
+     * @param path         <i>const char *</i>
+     * @param numOptions   <i>unsigned int</i>
+     * @param options      <i>CUjit_option *</i>
      * @param optionValues <i>void **</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g1224c0fd48d4a683f3ce19997f200a8c">cuLinkAddFile</a>
@@ -300,9 +302,9 @@ public interface DriverAPI extends Library {
     /**
      * Complete a pending linker invocation
      *
-     * @param state <i>CUlinkState</i>
+     * @param state    <i>CUlinkState</i>
      * @param cubinOut <i>void **</i>
-     * @param sizeOut <i>size_t *</i>
+     * @param sizeOut  <i>size_t *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g818fcd84a4150a997c0bba76fef4e716">cuLinkComplete</a>
      */
@@ -320,14 +322,14 @@ public interface DriverAPI extends Library {
     /**
      * Load a library with specified code and options
      *
-     * @param library <i>CUlibrary *</i>
-     * @param code <i>const void *</i>
-     * @param jitOptions <i>CUjit_option *</i>
-     * @param jitOptionsValues <i>void **</i>
-     * @param numJitOptions <i>unsigned int</i>
-     * @param libraryOptions <i>CUlibraryOption *</i>
+     * @param library             <i>CUlibrary *</i>
+     * @param code                <i>const void *</i>
+     * @param jitOptions          <i>CUjit_option *</i>
+     * @param jitOptionsValues    <i>void **</i>
+     * @param numJitOptions       <i>unsigned int</i>
+     * @param libraryOptions      <i>CUlibraryOption *</i>
      * @param libraryOptionValues <i>void**</i>
-     * @param numLibraryOptions <i>unsigned int</i>
+     * @param numLibraryOptions   <i>unsigned int</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1g957f12ff5af4166f43c89d17cfb0a74d">cuLibraryLoadData</a>
      */
@@ -336,14 +338,14 @@ public interface DriverAPI extends Library {
     /**
      * Load a library with specified file and options
      *
-     * @param library <i>CUlibrary *</i>
-     * @param fileName <i>const char *</i>
-     * @param jitOptions <i>CUjit_option *</i>
-     * @param jitOptionsValues <i>void **</i>
-     * @param numJitOptions <i>unsigned int</i>
-     * @param libraryOptions <i>CUlibraryOption *</i>
+     * @param library             <i>CUlibrary *</i>
+     * @param fileName            <i>const char *</i>
+     * @param jitOptions          <i>CUjit_option *</i>
+     * @param jitOptionsValues    <i>void **</i>
+     * @param numJitOptions       <i>unsigned int</i>
+     * @param libraryOptions      <i>CUlibraryOption *</i>
      * @param libraryOptionValues <i>void **</i>
-     * @param numLibraryOptions <i>unsigned int</i>
+     * @param numLibraryOptions   <i>unsigned int</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1g88cff489fab37c7fd1985ceb61023205">cuLibraryLoadFromFile</a>
      */
@@ -363,7 +365,7 @@ public interface DriverAPI extends Library {
      *
      * @param pKernel <i>CUkernel *</i>
      * @param library <i>CUlibrary</i>
-     * @param name <i>const char *</i>
+     * @param name    <i>const char *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1g15336d865f5abd63e3dc6004d5bc037a">cuLibraryGetKernel</a>
      */
@@ -373,7 +375,7 @@ public interface DriverAPI extends Library {
      * Returns the number of kernels within a library
      *
      * @param count <i>unsigned int *</i>
-     * @param lib <i>CUlibrary</i>
+     * @param lib   <i>CUlibrary</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1g142732b1c9afaa662f21cae9a558d2d4">cuLibraryGetKernelCount</a>
      */
@@ -382,9 +384,9 @@ public interface DriverAPI extends Library {
     /**
      * Retrieve the kernel handles within a library.
      *
-     * @param kernels <i>CUkernel *</i>
+     * @param kernels    <i>CUkernel *</i>
      * @param numKernels <i>unsigned int</i>
-     * @param lib <i>CUlibrary</i>
+     * @param lib        <i>CUlibrary</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1ga8ae2f42ab3a8fe789ac2dced8219608">cuLibraryEnumerateKernels</a>
      */
@@ -393,7 +395,7 @@ public interface DriverAPI extends Library {
     /**
      * Returns a module handle
      *
-     * @param pMod <i>CUmodule *</i>
+     * @param pMod    <i>CUmodule *</i>
      * @param library <i>CUlibrary</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1g0d439597c77b64cf247de33f0609a5d8">cuLibraryGetModule</a>
@@ -403,7 +405,7 @@ public interface DriverAPI extends Library {
     /**
      * Returns a function handle
      *
-     * @param pFunc <i>CUfunction *</i>
+     * @param pFunc  <i>CUfunction *</i>
      * @param kernel <i>CUkernel</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1ge4cf9abafaba338acb977585b0d7374a">cuKernelGetFunction</a>
@@ -413,7 +415,7 @@ public interface DriverAPI extends Library {
     /**
      * Returns the function name for a ::CUkernel handle
      *
-     * @param name <i>const char **</i>
+     * @param name  <i>const char **</i>
      * @param hfunc <i>CUkernel</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1ge758151073b777ef3ba11a45f7d22adf">cuKernelGetName</a>
@@ -423,10 +425,10 @@ public interface DriverAPI extends Library {
     /**
      * Returns the offset and size of a kernel parameter in the device-side parameter layout
      *
-     * @param kernel <i>CUkernel</i>
-     * @param paramIndex <i>size_t</i>
+     * @param kernel      <i>CUkernel</i>
+     * @param paramIndex  <i>size_t</i>
      * @param paramOffset <i>size_t *</i>
-     * @param paramSize <i>size_t *</i>
+     * @param paramSize   <i>size_t *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__LIBRARY.html#group__CUDA__LIBRARY_1ga61653c9f13f713527e189fb0c2fe235">cuKernelGetParamInfo</a>
      */
@@ -435,7 +437,7 @@ public interface DriverAPI extends Library {
     /**
      * Returns the function name for a ::CUfunction handle
      *
-     * @param name <i>const char **</i>
+     * @param name  <i>const char **</i>
      * @param hfunc <i>CUfunction</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__EXEC.html#group__CUDA__EXEC_1gf60c6c51203cab164c07d6ddcc2b2e26">cuFuncGetName</a>
@@ -445,10 +447,10 @@ public interface DriverAPI extends Library {
     /**
      * Returns the offset and size of a kernel parameter in the device-side parameter layout
      *
-     * @param func <i>CUfunction</i>
-     * @param paramIndex <i>size_t</i>
+     * @param func        <i>CUfunction</i>
+     * @param paramIndex  <i>size_t</i>
      * @param paramOffset <i>size_t *</i>
-     * @param paramSize <i>size_t *</i>
+     * @param paramSize   <i>size_t *</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__EXEC.html#group__CUDA__EXEC_1g6874b82bcf2803902085645e46e0ca0e">cuFuncGetParamInfo</a>
      */
@@ -457,21 +459,50 @@ public interface DriverAPI extends Library {
     /**
      * Launches a CUDA function ::CUfunction or a CUDA kernel ::CUkernel
      *
-     * @param f <i>CUfunction</i>
-     * @param gridDimX <i>unsigned int</i>
-     * @param gridDimY <i>unsigned int</i>
-     * @param gridDimZ <i>unsigned int</i>
-     * @param blockDimX <i>unsigned int</i>
-     * @param blockDimY <i>unsigned int</i>
-     * @param blockDimZ <i>unsigned int</i>
+     * @param f              <i>CUfunction</i>
+     * @param gridDimX       <i>unsigned int</i>
+     * @param gridDimY       <i>unsigned int</i>
+     * @param gridDimZ       <i>unsigned int</i>
+     * @param blockDimX      <i>unsigned int</i>
+     * @param blockDimY      <i>unsigned int</i>
+     * @param blockDimZ      <i>unsigned int</i>
      * @param sharedMemBytes <i>unsigned int</i>
-     * @param hStream <i>CUstream</i>
-     * @param kernelParams <i>void **</i>
-     * @param extra <i>void **</i>
+     * @param hStream        <i>CUstream</i>
+     * @param kernelParams   <i>void **</i>
+     * @param extra          <i>void **</i>
      * @return {@link CUresult}
      * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__EXEC.html#group__CUDA__EXEC_1gb8f3dc3031b40da29d5f9a7139e52e15">cuLaunchKernel</a>
      */
     CUresult cuLaunchKernel(Pointer f, int gridDimX, int gridDimY, int gridDimZ, int blockDimX, int blockDimY, int blockDimZ, int sharedMemBytes, Pointer hStream, Pointer[] kernelParams, Pointer[] extra);
+
+
+    // 6.25. Occupancy https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__OCCUPANCY.html#group__CUDA__OCCUPANCY_1gf179c4ab78962a8468e41c3f57851f03
+
+    /**
+     * Returns occupancy of a function
+     *
+     * @param numBlocks       <i>int *</i>
+     * @param func            <i>CUfunction</i>
+     * @param blockSize       <i>int</i>
+     * @param dynamicSMemSize <i>size_t</i>
+     * @return {@link CUresult}
+     * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__OCCUPANCY.html#group__CUDA__OCCUPANCY_1gcc6e1094d05cba2cee17fe33ddd04a98">cuOccupancyMaxActiveBlocksPerMultiprocessor</a>
+     */
+    CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(IntByReference numBlocks, Pointer func, int blockSize, Pointer dynamicSMemSize);
+
+    /**
+     * Suggest a launch configuration with reasonable occupancy
+     *
+     * @param minGridSize <i>int *</i>
+     * @param blockSize <i>int *</i>
+     * @param func <i>CUfunction</i>
+     * @param blockSizeToDynamicSMemSize <i>CUoccupancyB2DSize</i>
+     * @param dynamicSMemSize <i>size_t</i>
+     * @param blockSizeLimit <i>int</i>
+     * @return {@link CUresult}
+     * @see <a href="https://docs.nvidia.com/cuda/archive/12.4.1/cuda-driver-api/group__CUDA__OCCUPANCY.html#group__CUDA__OCCUPANCY_1gf179c4ab78962a8468e41c3f57851f03">cuOccupancyMaxPotentialBlockSize</a>
+     */
+    CUresult cuOccupancyMaxPotentialBlockSize(IntByReference minGridSize, IntByReference blockSize, Pointer func, @Nullable CUoccupancyB2DSize blockSizeToDynamicSMemSize, Pointer dynamicSMemSize, int blockSizeLimit);
 
     static DriverAPI load() {
         return load("nvcuda");
