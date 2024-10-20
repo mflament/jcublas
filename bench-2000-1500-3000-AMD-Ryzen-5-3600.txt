@@ -1,0 +1,51 @@
+AMD Ryzen 5 3600
+Number of cores	6 (max 6)
+Number of threads	12 (max 12)
+L1 Data cache	6 x 32 KB (8-way, 64-byte line)
+L1 Instruction cache	6 x 32 KB (8-way, 64-byte line)
+L2 cache	6 x 512 KB (8-way, 64-byte line)
+L3 cache	2 x 16 MB (16-way, 64-byte line)
+
+type=float A=2000x3000 (22,89MB) B=3000x1500 (17,17MB) C=2000x1500 (11,44MB)
+Cuda device NVIDIA GeForce GTX 1060 6GB (SM=10, threads/SM=2048, threads=20480, singleToDoublePrecisionPerfRatio=32)
+916  [main] INFO  o.y.t.g.sandbox.SgemmBenchSandbox -- generate inputs: 57.0ms 
+CPU(1T)        : done
+CPU(12T)       : done
+CPU(12T)+TR    : done
+cublas         : done
+cuda           : done
+cuda+tiled     : done
+cuda+tiled+TR  : done
+------------------------------------------------------------------------------
+| name           | transpose | write     | gemm      | read      | total     |
+------------------------------------------------------------------------------
+| CPU(1T)        | 0.0       | 0.0       | 29380.4   | 0.0       | 29380.4   |
+| CPU(12T)       | 0.0       | 0.0       | 6870.7    | 0.0       | 6870.7    |
+| CPU(12T)+TR    | 7.4       | 0.0       | 595.4     | 0.0       | 602.8     |
+| cublas         | 0.0       | 16.2      | 7.6       | 3.6       | 27.4      |
+| cuda           | 0.0       | 13.7      | 147.4     | 3.9       | 164.9     |
+| cuda+tiled     | 0.0       | 13.6      | 42.3      | 3.8       | 59.8      |
+| cuda+tiled+TR  | 7.4       | 13.5      | 31.3      | 3.6       | 55.8      |
+------------------------------------------------------------------------------
+
+type=double A=2000x3000 (45,78MB) B=3000x1500 (34,33MB) C=2000x1500 (22,89MB)
+Cuda device NVIDIA GeForce GTX 1060 6GB (SM=10, threads/SM=2048, threads=20480, singleToDoublePrecisionPerfRatio=32)
+914  [main] INFO  o.y.t.g.sandbox.DgemmBenchSandbox -- generate inputs: 51.3ms 
+CPU(1T)        : done
+CPU(12T)       : done
+CPU(12T)+TR    : done
+cublas         : done
+cuda           : done
+cuda+tiled     : done
+cuda+tiled+TR  : done
+------------------------------------------------------------------------------
+| name           | transpose | write     | gemm      | read      | total     |
+------------------------------------------------------------------------------
+| CPU(1T)        | 0.0       | 0.0       | 33658.4   | 0.0       | 33658.4   |
+| CPU(12T)       | 0.0       | 0.0       | 7342.8    | 0.0       | 7342.8    |
+| CPU(12T)+TR    | 9.8       | 0.0       | 751.8     | 0.0       | 761.6     |
+| cublas         | 0.0       | 26.0      | 138.6     | 7.4       | 172.0     |
+| cuda           | 0.0       | 26.0      | 178.2     | 7.3       | 211.4     |
+| cuda+tiled     | 0.0       | 25.9      | 187.6     | 7.2       | 220.7     |
+| cuda+tiled+TR  | 10.4      | 25.7      | 208.8     | 7.2       | 252.0     |
+------------------------------------------------------------------------------

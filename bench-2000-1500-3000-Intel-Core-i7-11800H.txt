@@ -1,0 +1,51 @@
+Intel Core i7 11800H
+Number of cores	8 (max 8)
+Number of threads	16 (max 16)
+L1 Data cache	8 x 48 KB (12-way, 64-byte line)
+L1 Instruction cache	8 x 32 KB (8-way, 64-byte line)
+L2 cache	8 x 1.25 MB (20-way, 64-byte line)
+L3 cache	24 MB (12-way, 64-byte line)
+
+type=float A=2000x3000 (22,89MB) B=3000x1500 (17,17MB) C=2000x1500 (11,44MB)
+Cuda device NVIDIA GeForce RTX 3060 Laptop GPU (SM=30, threads/SM=1536, threads=46080, singleToDoublePrecisionPerfRatio=32)
+2233 [main] INFO  o.y.t.g.sandbox.SgemmBenchSandbox -- generate inputs: 62.8ms
+CPU(1T)        : done
+CPU(16T)       : done
+CPU(16T)+TR    : done
+cublas         : done
+cuda           : done
+cuda+tiled     : done
+cuda+tiled+TR  : done
+------------------------------------------------------------------------------
+| name           | transpose | write     | gemm      | read      | total     |
+------------------------------------------------------------------------------
+| CPU(1T)        | 0.0       | 0.0       | 40536.8   | 0.0       | 40536.8   |
+| CPU(16T)       | 0.0       | 0.0       | 7434.4    | 0.0       | 7434.4    |
+| CPU(16T)+TR    | 5.4       | 0.0       | 691.2     | 0.0       | 696.6     |
+| cublas         | 0.0       | 9.7       | 3.2       | 3.3       | 16.1      |
+| cuda           | 0.0       | 10.1      | 34.3      | 3.4       | 47.8      |
+| cuda+tiled     | 0.0       | 9.5       | 26.0      | 3.5       | 39.0      |
+| cuda+tiled+TR  | 6.0       | 9.8       | 22.5      | 3.4       | 41.7      |
+------------------------------------------------------------------------------
+
+type=double A=2000x3000 (45,78MB) B=3000x1500 (34,33MB) C=2000x1500 (22,89MB)
+Cuda device NVIDIA GeForce RTX 3060 Laptop GPU (SM=30, threads/SM=1536, threads=46080, singleToDoublePrecisionPerfRatio=32)
+898  [main] INFO  o.y.t.g.sandbox.DgemmBenchSandbox -- generate inputs: 67.9ms
+CPU(1T)        : done
+CPU(16T)       : done
+CPU(16T)+TR    : done
+cublas         : done
+cuda           : done
+cuda+tiled     : done
+cuda+tiled+TR  : done
+------------------------------------------------------------------------------
+| name           | transpose | write     | gemm      | read      | total     |
+------------------------------------------------------------------------------
+| CPU(1T)        | 0.0       | 0.0       | 47252.1   | 0.0       | 47252.1   |
+| CPU(16T)       | 0.0       | 0.0       | 19783.4   | 0.0       | 19783.4   |
+| CPU(16T)+TR    | 18.9      | 0.0       | 2436.3    | 0.0       | 2455.2    |
+| cublas         | 0.0       | 28.8      | 104.9     | 8.5       | 142.2     |
+| cuda           | 0.0       | 22.1      | 94.0      | 8.1       | 124.2     |
+| cuda+tiled     | 0.0       | 20.7      | 98.6      | 7.5       | 126.9     |
+| cuda+tiled+TR  | 9.7       | 21.7      | 92.5      | 7.7       | 131.5     |
+------------------------------------------------------------------------------
